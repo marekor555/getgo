@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/pterm/pterm"
 )
 
 func main() {
@@ -16,11 +18,13 @@ func main() {
 	flag.Parse()
 	url := flag.Arg(0)
 
+	spinner, _ := pterm.DefaultSpinner.Start("Getting data...")
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
+	spinner.Info("Reading response...")
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -31,13 +35,16 @@ func main() {
 	if *saveas != "" {
 		filename = *saveas
 	}
+	spinner.Info("Outputing data...")
 	if *saveFile {
 		err = os.WriteFile(filename, body, 0644)
 		if err != nil {
 			log.Fatal(err.Error())
 		}
-		fmt.Println("file succesfully saved")
+		spinner.Success("Succesfully saved file")
 	} else {
 		fmt.Println(string(body))
+		spinner.Success("Dumped data into term")
 	}
+	println()
 }
