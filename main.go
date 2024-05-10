@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/pterm/pterm"
@@ -18,13 +19,14 @@ func main() {
 	flag.Parse()
 	url := flag.Arg(0)
 
-	spinner, _ := pterm.DefaultSpinner.Start("Getting data...")
+	spinner, _ := pterm.DefaultSpinner.Start("getting response...")
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
 
-	spinner.Info("Reading response...")
+	sizeBytes, err := strconv.Atoi(resp.Header.Get("Content-Length"))
+	spinner.UpdateText(fmt.Sprintf("reading response of %vMB", sizeBytes/1000000))
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		log.Fatal(err.Error())
@@ -35,7 +37,7 @@ func main() {
 	if *saveas != "" {
 		filename = *saveas
 	}
-	spinner.Info("Outputing data...")
+
 	if *saveFile {
 		err = os.WriteFile(filename, body, 0644)
 		if err != nil {
