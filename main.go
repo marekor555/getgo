@@ -64,5 +64,4 @@ func main() {
 		fmt.Println(string(body))
 		spinner.Success("Dumped data into term")
 	}
-	println()
 }
