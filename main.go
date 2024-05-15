@@ -15,10 +15,19 @@ import (
 )
 
 func main() {
-	saveFile := flag.Bool("save", false, "") // --save user wants to save the output
-	saveas := flag.String("as", "", "")      // --as user wants to change default name (for eg. with .html websites)
+	saveFile := flag.Bool("save", false, "save file")      // --save user wants to save the output
+	saveas := flag.String("as", "", "set custom filename") // --as user wants to change default name (for eg. with .html websites)
+	help := flag.Bool("help", false, "display help")
 	flag.Parse()
 	url := flag.Arg(0)
+
+	if *help {
+		fmt.Println("example commands:")
+		fmt.Println("save: \n  getgo --save \"example.com/downloadme.txt\"")
+		fmt.Println("save with filename: \n  getgo --save --as hello.html \"duckduckgo.com\"")
+		fmt.Println("dump: \n  getgo \"example.com/dumpme.txt\" ")
+		return
+	}
 
 	logger := pterm.DefaultLogger.WithLevel(pterm.LogLevelTrace)
 	spinner, _ := pterm.DefaultSpinner.Start("getting response...")
