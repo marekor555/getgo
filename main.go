@@ -49,10 +49,19 @@ func main() {
 		logger.Fatal(err.Error())
 	}
 
-	urlSplit := strings.Split(url, "/")
-	filename := urlSplit[len(urlSplit)-1]
+	var filename string
+
 	if *saveas != "" {
-		filename = *saveas // TODO: verify if it is actuall filename (different method?)
+		filename = *saveas
+	} else {
+		// if no name specified, get the filename with it's extension
+		urlSplit := strings.Split(url, "/")
+		if strings.Split(resp.Header.Get("Content-Type"), ";")[0] != "text/html" { // if it is not text/html, it probably is already specified
+			filename = urlSplit[len(urlSplit)-1]
+		} else {
+			filenameSplit := strings.Split(urlSplit[len(urlSplit)-1], ".")
+			filename = filenameSplit[0] + ".html"
+		}
 	}
 
 	workingDir, err := os.Getwd() // get working directory
