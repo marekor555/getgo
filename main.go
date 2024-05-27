@@ -16,7 +16,7 @@ import (
 
 func main() {
 	saveFile := flag.Bool("save", false, "save file")      // --save user wants to save the output
-	saveas := flag.String("as", "", "set custom filename") // --as user wants to change default name (for eg. with .html websites)
+	saveAs := flag.String("as", "", "set custom filename") // --as user wants to change default name (for eg. with .html websites)
 	help := flag.Bool("help", false, "display help")
 	flag.Parse()
 	url := flag.Arg(0)
@@ -32,31 +32,31 @@ func main() {
 	logger := pterm.DefaultLogger.WithLevel(pterm.LogLevelTrace)
 	spinner, _ := pterm.DefaultSpinner.Start("getting response...")
 
-	resp, err := http.Get(url)
-	if err != nil {
-		resp, err = http.Get("https://" + url) // if normal http.Get fails, user probably forgot https://
-		if err != nil {
+	response, error := http.Get(url)
+	if error != nil {
+		response, error = http.Get("https://" + url) // if normal http.Get fails, user probably forgot https://
+		if error != nil {
 			spinner.Fail("")
-			logger.Fatal(err.Error())
+			logger.Fatal(error.Error())
 		}
 	}
 
-	sizeBytes, err := strconv.Atoi(resp.Header.Get("Content-Length"))              // get filesize in bytes
+	sizeBytes, error := strconv.Atoi(response.Header.Get("Content-Length"))        // get filesize in bytes
 	spinner.UpdateText(fmt.Sprintf("reading response of %vMB", sizeBytes/1000000)) // update spinner text to show the file size
-	body, err := io.ReadAll(resp.Body)
-	if err != nil {
+	responseBody, error := io.ReadAll(response.Body)
+	if error != nil {
 		spinner.Fail("")
-		logger.Fatal(err.Error())
+		logger.Fatal(error.Error())
 	}
 
 	var filename string
 
-	if *saveas != "" {
-		filename = *saveas
+	if *saveAs != "" {
+		filename = *saveAs
 	} else {
 		// if no name specified, get the filename with it's extension
 		urlSplit := strings.Split(url, "/")
-		if strings.Split(resp.Header.Get("Content-Type"), ";")[0] != "text/html" { // if it is not text/html, it probably is already specified
+		if strings.Split(response.Header.Get("Content-Type"), ";")[0] != "text/html" { // if it is not text/html, it probably is already specified
 			filename = urlSplit[len(urlSplit)-1]
 		} else {
 			filenameSplit := strings.Split(urlSplit[len(urlSplit)-1], ".")
@@ -64,25 +64,25 @@ func main() {
 		}
 	}
 
-	workingDir, err := os.Getwd() // get working directory
-	if err != nil {
+	workingDirectory, error := os.Getwd() // get working directory
+	if error != nil {
 		spinner.Fail("")
-		logger.Fatal(err.Error())
+		logger.Fatal(error.Error())
 	}
 
 	if *saveFile { //save the file if specified
-		if _, err := os.Stat(filepath.Join(workingDir, filename)); err == nil { // if file exists, user needs to be informed
+		if _, error := os.Stat(filepath.Join(workingDirectory, filename)); error == nil { // if file exists, user needs to be informed
 			spinner.UpdateText("File exists, overwriting in 5s...")
 			time.Sleep(time.Second * 5)
 		}
-		err = os.WriteFile(filename, body, 0644)
-		if err != nil {
+		error = os.WriteFile(filename, responseBody, 0644)
+		if error != nil {
 			spinner.Fail("")
-			logger.Fatal(err.Error())
+			logger.Fatal(error.Error())
 		}
 		spinner.Success("Succesfully saved file")
 	} else { // if nothing is specified to do with the file, dump the output
-		fmt.Println(string(body))
+		fmt.Println(string(responseBody))
 		spinner.Success("Dumped data into term")
 	}
 }
