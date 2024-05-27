@@ -82,7 +82,7 @@ func main() {
 		}
 		spinner.Success("Succesfully saved file")
 	} else { // if nothing is specified to do with the file, dump the output
+		spinner.Success("Dumping data into term")
 		fmt.Println(string(responseBody))
-		spinner.Success("Dumped data into term")
 	}
 }
