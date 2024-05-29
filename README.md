@@ -19,7 +19,7 @@ For arch linux and relatives I prepared PKGBUILD.
 To do it with the arch package:
 
 1. Clone git repo: `git clone https://github.com/marekor555/getgo`
-2. Then mote to the project: `cd getgo`
+2. Then move to the project: `cd getgo`
 3. Then run install script: `sh clean.sh`
 
 This script will clean the garbage that is left by makepkg.
