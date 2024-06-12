@@ -1,4 +1,4 @@
-module getgo
+module github.com/marekor555/getgo
 
 go 1.22.2
 
